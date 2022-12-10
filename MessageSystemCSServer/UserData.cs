@@ -14,7 +14,11 @@ namespace MessageSystemCSServer
         private string _uid;
         private string _password;
 
-        private static string SAVE_PATH = "users_data.json";
+        public string UID { get => _uid; set => _uid = value; }
+        public string Password { get => _password; set => _password = value; }
+
+        private static string SAVE_PATH = "\\users_data.json";
+
 
         public UserData(string uid, string password)
         {
@@ -30,7 +34,9 @@ namespace MessageSystemCSServer
             try
             {
                 var userRaw = JsonConvert.SerializeObject(listUser);
-                File.WriteAllText(SAVE_PATH, userRaw);
+                string path = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+                path = path + SAVE_PATH;
+                File.WriteAllText(path, userRaw);
             }
             catch
             {
@@ -43,7 +49,9 @@ namespace MessageSystemCSServer
             var list = new List<UserData>();
             try
             {
-                string usersRaw = File.ReadAllText(SAVE_PATH);
+                string path = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+                path = path + SAVE_PATH;
+                string usersRaw = File.ReadAllText(path);
                 list = JsonConvert.DeserializeObject<List<UserData>>(usersRaw);
             }
             catch

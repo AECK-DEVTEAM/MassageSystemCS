@@ -64,18 +64,43 @@ namespace MessageSystemCSDesktopApp
             receiveDataThread.Start();
 
             btn_connect.Enabled = false;
+            tb_ip.Enabled = false;
+            lb_clients.Enabled = false;
+            btn_login.Enabled = true;
+            btn_register.Enabled = true;
+            
         }
 
         private void btn_login_Click(object sender, EventArgs e)
         {
-            uid = tb_uid.Text;
+            var uid = tb_uid.Text;
+            var password = tb_password.Text;
+            if (String.IsNullOrEmpty(uid)) uid = "empty";
+            if (String.IsNullOrEmpty(password)) password = "empty";
+
+            this.uid = uid;
             Properties.Settings.Default.UID = uid;
             Properties.Settings.Default.Save();
 
             //Login            
-            SendDataToServer(new Packet(Packet.PacketType.Login, uid, publicKey));
+            var packet = new Packet(Packet.PacketType.Login, uid, publicKey);
+            packet.singleStringData = password;
+            SendDataToServer(packet);
             Log("Login-Packet sent.\n");
-            btn_login.Enabled = false;
+        }
+
+        private void btn_register_Click(object sender, EventArgs e)
+        {
+            //Register
+            var uid = tb_uid2.Text;
+            var password = tb_password2.Text;
+            if (String.IsNullOrEmpty(uid)) uid = "empty";
+            if (String.IsNullOrEmpty(password)) password = "empty";
+
+            var packet = new Packet(Packet.PacketType.Registration, uid, publicKey);
+            packet.singleStringData = password;
+            SendDataToServer(packet);
+            Log("Registration-Packet sent.\n");
         }
 
         public void SendDataToServer(Packet packet)
@@ -88,19 +113,45 @@ namespace MessageSystemCSDesktopApp
             clientStream.Write(packetBytes, 0, packetBytes.Length); //Senden der eingentlichen Daten/des Textes    
         }
 
+        //private delegate void dlgUIHandleWhenLoginSuccessed(Control control);
+        //private void UIHandleWhenLoginSuccessed(Control control)
+        //{
+        //    if (control.InvokeRequired)
+        //    {
+        //        this.Invoke(new dlgUIHandleWhenLoginSuccessed, n)
+        //    }
+        //}
+
+
         private void DataManagerForIncommingServerPackets(Packet packet)
         {
             switch (packet.type)
-            {               
+            {
+                case Packet.PacketType.RegistrationSuccess:
+                    Log("Registration was successfull.\n");
+                    MessageBox.Show("Registration was successfull.", "Registration was successfull." , MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    break;
+                case Packet.PacketType.RegistrationFail:
+                    Log("Register failed.\n");
+                    MessageBox.Show("Registation failed!\n\nDetails:\n" + packet.singleStringData, "Register failed.", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    break;
+
                 case Packet.PacketType.LoginSuccess:
                     Log("Login was successfull.\n");
                     GetClientist();
+                    this.Invoke(new Action(() =>
+                    {
+                        this.btn_login.Enabled = false;
+                        this.lb_clients.Enabled = true;
+                        this.tb_uid.Enabled = false;
+                        this.tb_password.Enabled = false;
+                    }));
+
                     break;
                 case Packet.PacketType.LoginFail:
-                    tcpClient.Close();
+                    //tcpClient.Close();
                     Log("Login failed.");
                     MessageBox.Show("Login failed!\n\nDetails:\n" + packet.singleStringData, "Login failed!", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    
                     break;
                 case Packet.PacketType.ClientList:
                     Log("ClientList received.");

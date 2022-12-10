@@ -16,10 +16,12 @@ namespace MessageSystemCSServer
         const int PORT = 6666;
         private static TcpListener listener;
         private static List<ClientData> clients = new List<ClientData>();
+        private static List<UserData> users = new List<UserData>(); 
 
         static void Main(string[] args)
         {
             clients = new List<ClientData>();
+            users = UserData.LoadListUsers();
 
             Console.Title = "MessageSystemCS | Server";
 
@@ -107,17 +109,40 @@ namespace MessageSystemCSServer
             ClientData client;
             switch (p.type)
             {
+                case Packet.PacketType.Registration:
+                    Console.WriteLine("Client wants to registration with UID: " + p.uid + " and Public-Key: " + p.publicKey);
+                    client = GetClientFromList(clientSocket);
+                    var user = GetUserFromList(p.uid);
+                    if (user != null)
+                    {
+                        client.SendDataPacketToClient(new Packet(Packet.PacketType.RegistrationFail, "User with this uid already exists!"));
+                    }
+                    else
+                    {
+                        user = new UserData(p.uid, p.singleStringData);
+                        user.Save();
+                        client.SendDataPacketToClient(new Packet(Packet.PacketType.RegistrationSuccess, "User with this uid already exists!"));
+                    }
+                    break;
                 case Packet.PacketType.Login:
                     Console.WriteLine("Client wants to login with UID: " + p.uid + " and Public-Key: " + p.publicKey);
                     client = GetClientFromList(clientSocket);
+
+                    // Check account in db
+                    if (!CheckUidAndPass(p.uid, p.singleStringData))
+                    {
+                        client.SendDataPacketToClient(new Packet(Packet.PacketType.LoginFail, "Uid or password increct!"));
+                        break;
+                    }
 
                     foreach (ClientData c in clients)
                     {
                         if(c.UID.ToLower() == p.uid.ToLower())
                         {
-                            client.SendDataPacketToClient(new Packet(Packet.PacketType.LoginFail, "User with this uid already exists!"));
+                            client.SendDataPacketToClient(new Packet(Packet.PacketType.LoginFail, "User with this uid already online!"));
                         }
                     }
+
                     client.UID = p.uid;
                     client.PublicKey = p.publicKey;
                     client.SendDataPacketToClient(new Packet(Packet.PacketType.LoginSuccess));
@@ -157,6 +182,26 @@ namespace MessageSystemCSServer
                     }
                     break;
             }
+        }
+
+        private static UserData GetUserFromList(string uid)
+        {
+            users = UserData.LoadListUsers();
+
+            for (int i = 0; i < users.Count; i++)
+            {
+                if (users[i].UID.ToLower().Trim() == uid.ToLower().Trim()) 
+                    return users[i];
+            }
+            return null;
+        }
+
+        private static bool CheckUidAndPass(string uid, string password)
+        {
+            var user = Server.GetUserFromList(uid);
+            if (user != null && user.Password == password)
+                return true;
+            return false;
         }
 
         /// <summary>

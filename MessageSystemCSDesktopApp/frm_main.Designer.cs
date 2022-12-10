@@ -155,6 +155,8 @@ namespace MessageSystemCSDesktopApp
             this.btn_register.TabIndex = 14;
             this.btn_register.Text = "Register";
             this.btn_register.UseVisualStyleBackColor = true;
+            this.btn_register.Click += new System.EventHandler(this.btn_register_Click);
+            this.btn_register.Enabled = false;
             // 
             // tb_password
             // 
@@ -200,7 +202,7 @@ namespace MessageSystemCSDesktopApp
             this.btn_login.Text = "Login";
             this.btn_login.UseVisualStyleBackColor = true;
             this.btn_login.Click += new System.EventHandler(this.btn_login_Click);
-
+            this.btn_login.Enabled = false;
             // 
             // frm_main
             // 
