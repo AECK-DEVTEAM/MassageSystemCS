@@ -127,7 +127,9 @@ namespace MessageSysDataManagementLib
             ClientList,
 
             //extend
-            
+            Registration,
+            RegistrationSuccess,
+            RegistrationFail,
         }
     }
 }

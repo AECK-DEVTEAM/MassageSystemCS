@@ -54,11 +54,8 @@ namespace MessageSystemCSDesktopApp
                 return;
             }
 
-            uid = tb_uid.Text;
-
             ConnectToServer(tb_ip.Text, PORT);
 
-            Properties.Settings.Default.UID = uid;
             Properties.Settings.Default.ServerIP = tb_ip.Text;
             Properties.Settings.Default.Save();            
 
@@ -66,11 +63,19 @@ namespace MessageSystemCSDesktopApp
             Thread receiveDataThread = new Thread(DataIn);
             receiveDataThread.Start();
 
+            btn_connect.Enabled = false;
+        }
+
+        private void btn_login_Click(object sender, EventArgs e)
+        {
+            uid = tb_uid.Text;
+            Properties.Settings.Default.UID = uid;
+            Properties.Settings.Default.Save();
+
             //Login            
             SendDataToServer(new Packet(Packet.PacketType.Login, uid, publicKey));
             Log("Login-Packet sent.\n");
-
-            btn_connect.Enabled = false;
+            btn_login.Enabled = false;
         }
 
         public void SendDataToServer(Packet packet)
@@ -362,6 +367,26 @@ namespace MessageSystemCSDesktopApp
         private void frm_main_Activated(object sender, EventArgs e)
         {
             FlashWindow.Stop(this);
+        }
+
+        private void tb_password_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label4_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void frm_main_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label2_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }
