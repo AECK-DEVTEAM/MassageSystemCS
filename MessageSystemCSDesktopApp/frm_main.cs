@@ -47,6 +47,16 @@ namespace MessageSystemCSDesktopApp
             }
         }
 
+        private void btn_newGroup_Click(object sender, EventArgs e)
+        {
+            if(tb_gid.Text == String.Empty)
+                return;
+
+            var packet = new Packet(Packet.PacketType.CreateGroup, tb_gid.Text);
+            SendDataToServer(packet);
+            Log("Create-Packet sent.\n");
+        }
+
         private void btn_connect_Click(object sender, EventArgs e)
         {            
             if(tb_uid.Text == String.Empty || tb_ip.Text == String.Empty)
@@ -113,20 +123,33 @@ namespace MessageSystemCSDesktopApp
             clientStream.Write(packetBytes, 0, packetBytes.Length); //Senden der eingentlichen Daten/des Textes    
         }
 
-        //private delegate void dlgUIHandleWhenLoginSuccessed(Control control);
-        //private void UIHandleWhenLoginSuccessed(Control control)
-        //{
-        //    if (control.InvokeRequired)
-        //    {
-        //        this.Invoke(new dlgUIHandleWhenLoginSuccessed, n)
-        //    }
-        //}
-
-
         private void DataManagerForIncommingServerPackets(Packet packet)
         {
             switch (packet.type)
             {
+                case Packet.PacketType.NewGroupCreated:
+                    Log("New group was created.");
+                    GetGroupList();
+                    break;
+                case Packet.PacketType.GroupList:
+                    Log("Group list received.");
+                    InvokeGUIThread(() => {
+                        lb_groups.Items.Clear();
+                        foreach (object gid in packet.data)
+                        {
+                            lb_groups.Items.Add((string) gid);
+                        }
+                    });
+                    break;
+                case Packet.PacketType.CreateGroupSuccess:
+                    Log("Cretate group was successfull.\n");
+                    MessageBox.Show("Create group was successfull", "Successfull", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    GetGroupList();
+                    break;
+                case Packet.PacketType.CreateGroupFail:
+                    Log("Create group fail.\n");
+                    MessageBox.Show("Create group failed!\n\nDetails:\n" + packet.singleStringData, "Create group failed.", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    break;
                 case Packet.PacketType.RegistrationSuccess:
                     Log("Registration was successfull.\n");
                     MessageBox.Show("Registration was successfull.", "Registration was successfull." , MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -139,13 +162,15 @@ namespace MessageSystemCSDesktopApp
                 case Packet.PacketType.LoginSuccess:
                     Log("Login was successfull.\n");
                     GetClientist();
-                    this.Invoke(new Action(() =>
+                    GetGroupList();
+                    InvokeGUIThread(() =>
                     {
                         this.btn_login.Enabled = false;
                         this.lb_clients.Enabled = true;
                         this.tb_uid.Enabled = false;
                         this.tb_password.Enabled = false;
-                    }));
+                        this.btn_newGroup.Enabled = true;
+                    });
 
                     break;
                 case Packet.PacketType.LoginFail:
@@ -316,6 +341,12 @@ namespace MessageSystemCSDesktopApp
             SendDataToServer(new Packet(Packet.PacketType.GetClientList));
         }
 
+
+        public void GetGroupList()
+        {
+            SendDataToServer(new Packet(Packet.PacketType.GetGroupList));
+        }
+
         private void lb_clients_DoubleClick(object sender, EventArgs e)
         {
             if (lb_clients.SelectedItem != null)
@@ -340,9 +371,9 @@ namespace MessageSystemCSDesktopApp
             InvokeGUIThread(() => { tb_log.Text += ">> " + message + "\n"; tb_log.ScrollToCaret(); });
         }       
         
-        public void SendMessage(string destinationID, byte[] encrypedMessage)
+        public void SendMessage(string destinationID, byte[] encrypedMessage, bool isGroup = false)
         {
-            SendDataToServer(new Packet(Packet.PacketType.Message, DateTime.Now, uid, destinationID, encrypedMessage));
+            SendDataToServer(new Packet(isGroup ? Packet.PacketType.MessageGroup : Packet.PacketType.Message, DateTime.Now, uid, destinationID, encrypedMessage));
         }
 
         private void tc_conversations_DrawItem(object sender, DrawItemEventArgs e)

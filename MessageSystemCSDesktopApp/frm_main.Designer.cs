@@ -48,6 +48,10 @@ namespace MessageSystemCSDesktopApp
             this.label5 = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
             this.btn_login = new System.Windows.Forms.Button();
+            this.lable7 = new System.Windows.Forms.Label();
+            this.lb_groups = new System.Windows.Forms.ListBox();
+            this.tb_gid = new System.Windows.Forms.TextBox();
+            this.btn_newGroup = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // btn_connect
@@ -72,7 +76,7 @@ namespace MessageSystemCSDesktopApp
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(420, 349);
+            this.label2.Location = new System.Drawing.Point(420, 296);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(74, 13);
             this.label2.TabIndex = 3;
@@ -89,9 +93,9 @@ namespace MessageSystemCSDesktopApp
             // lb_clients
             // 
             this.lb_clients.FormattingEnabled = true;
-            this.lb_clients.Location = new System.Drawing.Point(423, 365);
+            this.lb_clients.Location = new System.Drawing.Point(420, 312);
             this.lb_clients.Name = "lb_clients";
-            this.lb_clients.Size = new System.Drawing.Size(198, 160);
+            this.lb_clients.Size = new System.Drawing.Size(198, 95);
             this.lb_clients.TabIndex = 5;
             this.lb_clients.DoubleClick += new System.EventHandler(this.lb_clients_DoubleClick);
             // 
@@ -100,7 +104,7 @@ namespace MessageSystemCSDesktopApp
             this.tb_log.Location = new System.Drawing.Point(423, 116);
             this.tb_log.Name = "tb_log";
             this.tb_log.ReadOnly = true;
-            this.tb_log.Size = new System.Drawing.Size(195, 230);
+            this.tb_log.Size = new System.Drawing.Size(195, 177);
             this.tb_log.TabIndex = 7;
             this.tb_log.Text = "";
             // 
@@ -149,6 +153,7 @@ namespace MessageSystemCSDesktopApp
             // 
             // btn_register
             // 
+            this.btn_register.Enabled = false;
             this.btn_register.Location = new System.Drawing.Point(266, 77);
             this.btn_register.Name = "btn_register";
             this.btn_register.Size = new System.Drawing.Size(75, 23);
@@ -156,7 +161,6 @@ namespace MessageSystemCSDesktopApp
             this.btn_register.Text = "Register";
             this.btn_register.UseVisualStyleBackColor = true;
             this.btn_register.Click += new System.EventHandler(this.btn_register_Click);
-            this.btn_register.Enabled = false;
             // 
             // tb_password
             // 
@@ -195,6 +199,7 @@ namespace MessageSystemCSDesktopApp
             // 
             // btn_login
             // 
+            this.btn_login.Enabled = false;
             this.btn_login.Location = new System.Drawing.Point(266, 14);
             this.btn_login.Name = "btn_login";
             this.btn_login.Size = new System.Drawing.Size(75, 23);
@@ -202,13 +207,51 @@ namespace MessageSystemCSDesktopApp
             this.btn_login.Text = "Login";
             this.btn_login.UseVisualStyleBackColor = true;
             this.btn_login.Click += new System.EventHandler(this.btn_login_Click);
-            this.btn_login.Enabled = false;
+            // 
+            // lable7
+            // 
+            this.lable7.AutoSize = true;
+            this.lable7.Location = new System.Drawing.Point(420, 410);
+            this.lable7.Name = "lable7";
+            this.lable7.Size = new System.Drawing.Size(39, 13);
+            this.lable7.TabIndex = 20;
+            this.lable7.Text = "Group:";
+            // 
+            // lb_groups
+            // 
+            this.lb_groups.FormattingEnabled = true;
+            this.lb_groups.Location = new System.Drawing.Point(420, 452);
+            this.lb_groups.Name = "lb_groups";
+            this.lb_groups.Size = new System.Drawing.Size(198, 95);
+            this.lb_groups.TabIndex = 21;
+            // 
+            // tb_gid
+            // 
+            this.tb_gid.Location = new System.Drawing.Point(420, 426);
+            this.tb_gid.Name = "tb_gid";
+            this.tb_gid.Size = new System.Drawing.Size(136, 20);
+            this.tb_gid.TabIndex = 22;
+            // 
+            // btn_newGroup
+            // 
+            this.btn_newGroup.Enabled = false;
+            this.btn_newGroup.Location = new System.Drawing.Point(562, 424);
+            this.btn_newGroup.Name = "btn_newGroup";
+            this.btn_newGroup.Size = new System.Drawing.Size(56, 23);
+            this.btn_newGroup.TabIndex = 23;
+            this.btn_newGroup.Text = "Create";
+            this.btn_newGroup.UseVisualStyleBackColor = true;
+            this.btn_newGroup.Click += new System.EventHandler(this.btn_newGroup_Click);
             // 
             // frm_main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(627, 750);
+            this.Controls.Add(this.btn_newGroup);
+            this.Controls.Add(this.tb_gid);
+            this.Controls.Add(this.lb_groups);
+            this.Controls.Add(this.lable7);
             this.Controls.Add(this.btn_login);
             this.Controls.Add(this.label6);
             this.Controls.Add(this.label5);
@@ -256,6 +299,10 @@ namespace MessageSystemCSDesktopApp
         private Label label5;
         private Label label6;
         private Button btn_login;
+        private Label lable7;
+        private ListBox lb_groups;
+        private TextBox tb_gid;
+        private Button btn_newGroup;
     }
 }
 

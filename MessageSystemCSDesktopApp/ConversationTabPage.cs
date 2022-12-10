@@ -18,12 +18,16 @@ namespace MessageSystemCSDesktopApp
         private frm_emoji emoji = null;
 
         private string _uid;
+        private string _gid;
         private string _publicKey;
         private bool _disabled = false;
+        private bool _isGroup = false;
 
         public string PublicKey { get => _publicKey; set => _publicKey = value; }
         public string UID { get => _uid; set => _uid = value; }
-        public bool Disabled { get => _disabled; set => _disabled = value; }        
+        public string GID { get => _gid; set => _gid = value; }
+        public bool Disabled { get => _disabled; set => _disabled = value; }  
+        public bool IsGroup { get => _isGroup; set => _isGroup = value; }
 
         public ConversationTabPage(frm_main main, string uid, string publicKey)
         {
@@ -67,7 +71,7 @@ namespace MessageSystemCSDesktopApp
             if (!String.IsNullOrWhiteSpace(tb_send_message.Text) || !String.IsNullOrEmpty(tb_send_message.Text))
             {
                 main.Log(tb_send_message.Text);
-                main.SendMessage(this.UID, MessageSysDataManagementLib.KeyManagement.Encrypt(this.PublicKey, tb_send_message.Text.TrimEnd(Environment.NewLine.ToCharArray())));
+                main.SendMessage(this.UID, MessageSysDataManagementLib.KeyManagement.Encrypt(this.PublicKey, tb_send_message.Text.TrimEnd(Environment.NewLine.ToCharArray())), _isGroup);
                 NewMessageFromMe(DateTime.Now, tb_send_message.Text.TrimEnd(Environment.NewLine.ToCharArray()));
                 tb_send_message.Clear();
             }

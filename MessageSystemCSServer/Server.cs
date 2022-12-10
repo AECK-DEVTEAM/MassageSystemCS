@@ -17,11 +17,13 @@ namespace MessageSystemCSServer
         private static TcpListener listener;
         private static List<ClientData> clients = new List<ClientData>();
         private static List<UserData> users = new List<UserData>(); 
+        private static List<GroupData> groups = new List<GroupData>();
 
         static void Main(string[] args)
         {
             clients = new List<ClientData>();
             users = UserData.LoadListUsers();
+            groups = GroupData.LoadListGroup();
 
             Console.Title = "MessageSystemCS | Server";
 
@@ -109,6 +111,46 @@ namespace MessageSystemCSServer
             ClientData client;
             switch (p.type)
             {
+                case Packet.PacketType.GetGroupList:
+                    client = GetClientFromList(clientSocket);
+                    Console.WriteLine("Client " + client.UID + " wants Group List. Generating...");
+                    groups = GroupData.LoadListGroup();
+                    List<object> gdataList = new List<object>();
+                    foreach (GroupData g in groups)
+                    {
+                        gdataList.Add(g.GID);
+                    }
+                    client.SendDataPacketToClient(new Packet(Packet.PacketType.GroupList, gdataList));
+                    break;
+                case Packet.PacketType.CreateGroup:
+                    Console.WriteLine("Client wants to create group with GID: " + p.singleStringData);
+                    client = GetClientFromList(clientSocket);
+                    groups = GroupData.LoadListGroup();
+                    bool gidExist = false;
+                    foreach(var g in groups)
+                    {
+                        if (g.GID.ToLower() == p.singleStringData.ToLower())
+                        {
+                            client.SendDataPacketToClient(new Packet(Packet.PacketType.CreateGroupFail, "Group with this gid already exists!"));
+                            gidExist = true;
+                        }
+                    }
+                    if (!gidExist)
+                    {
+                        var group = new GroupData(p.singleStringData);
+                        group.Save();
+                        client.SendDataPacketToClient(new Packet(Packet.PacketType.CreateGroupSuccess));
+
+                        //Notify clients that new Group has created
+                        foreach (ClientData c in clients)
+                        {
+                            if (c.UID != p.uid)
+                            {
+                                c.SendDataPacketToClient(new Packet(Packet.PacketType.NewGroupCreated, group.GID));
+                            }
+                        }
+                    }
+                    break;
                 case Packet.PacketType.Registration:
                     Console.WriteLine("Client wants to registration with UID: " + p.uid + " and Public-Key: " + p.publicKey);
                     client = GetClientFromList(clientSocket);

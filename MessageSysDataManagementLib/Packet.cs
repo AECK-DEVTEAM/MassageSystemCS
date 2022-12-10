@@ -130,6 +130,15 @@ namespace MessageSysDataManagementLib
             Registration,
             RegistrationSuccess,
             RegistrationFail,
+            CreateGroup,
+            CreateGroupSuccess,
+            CreateGroupFail,
+            JoinGroup,
+            OutGroup,
+            MessageGroup,
+            GetGroupList,
+            GroupList,
+            NewGroupCreated,
         }
     }
 }
