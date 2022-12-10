@@ -107,20 +107,20 @@ namespace MessageSystemCSServer
             ClientData client;
             switch (p.type)
             {
-                case Packet.PacketType.Registration:
-                    Console.WriteLine("Client wants to register with UID: " + p.uid + " and Public-Key: " + p.publicKey);
+                case Packet.PacketType.Login:
+                    Console.WriteLine("Client wants to login with UID: " + p.uid + " and Public-Key: " + p.publicKey);
                     client = GetClientFromList(clientSocket);
 
                     foreach (ClientData c in clients)
                     {
                         if(c.UID.ToLower() == p.uid.ToLower())
                         {
-                            client.SendDataPacketToClient(new Packet(Packet.PacketType.RegistrationFail, "User with this uid already exists!"));
+                            client.SendDataPacketToClient(new Packet(Packet.PacketType.LoginFail, "User with this uid already exists!"));
                         }
                     }
                     client.UID = p.uid;
                     client.PublicKey = p.publicKey;
-                    client.SendDataPacketToClient(new Packet(Packet.PacketType.RegistrationSuccess));
+                    client.SendDataPacketToClient(new Packet(Packet.PacketType.LoginSuccess));
 
                     //Notify clients that new Client has connected
                     foreach (ClientData c in clients)

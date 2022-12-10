@@ -117,14 +117,17 @@ namespace MessageSysDataManagementLib
 
         public enum PacketType
         {
-            Registration,
-            RegistrationSuccess,
-            RegistrationFail,
+            Login,
+            LoginSuccess,
+            LoginFail,
             Message,
             ClientDisconnected,
             ClientConnected,
             GetClientList,
-            ClientList
+            ClientList,
+
+            //extend
+            
         }
     }
 }

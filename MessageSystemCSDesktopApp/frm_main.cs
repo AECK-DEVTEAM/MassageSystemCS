@@ -66,9 +66,9 @@ namespace MessageSystemCSDesktopApp
             Thread receiveDataThread = new Thread(DataIn);
             receiveDataThread.Start();
 
-            //Register            
-            SendDataToServer(new Packet(Packet.PacketType.Registration, uid, publicKey));
-            Log("Registration-Packet sent.\n");
+            //Login            
+            SendDataToServer(new Packet(Packet.PacketType.Login, uid, publicKey));
+            Log("Login-Packet sent.\n");
 
             btn_connect.Enabled = false;
         }
@@ -87,14 +87,14 @@ namespace MessageSystemCSDesktopApp
         {
             switch (packet.type)
             {               
-                case Packet.PacketType.RegistrationSuccess:
-                    Log("Registration was successfull.\n");
+                case Packet.PacketType.LoginSuccess:
+                    Log("Login was successfull.\n");
                     GetClientist();
                     break;
-                case Packet.PacketType.RegistrationFail:
+                case Packet.PacketType.LoginFail:
                     tcpClient.Close();
-                    Log("Registration failed.");
-                    MessageBox.Show("Registration failed!\n\nDetails:\n" + packet.singleStringData, "Registration failed!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    Log("Login failed.");
+                    MessageBox.Show("Login failed!\n\nDetails:\n" + packet.singleStringData, "Login failed!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     
                     break;
                 case Packet.PacketType.ClientList:
