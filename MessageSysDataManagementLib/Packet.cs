@@ -134,11 +134,14 @@ namespace MessageSysDataManagementLib
             CreateGroupSuccess,
             CreateGroupFail,
             JoinGroup,
+            JoinGroupSuccess,
             OutGroup,
             MessageGroup,
             GetGroupList,
             GroupList,
             NewGroupCreated,
+            NewClientJoinedGroup,
+            ClientOutedGroup,
         }
     }
 }

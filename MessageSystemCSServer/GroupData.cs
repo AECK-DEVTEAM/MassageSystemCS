@@ -67,5 +67,10 @@ namespace MessageSystemCSServer
             //    if (client.is)
             //}
         }
+
+        public override string ToString()
+        {
+            return String.Join(";", this.clientsJoined.Select(c => c.UID));
+        }
     }
 }

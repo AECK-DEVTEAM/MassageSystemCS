@@ -22,6 +22,7 @@ namespace MessageSystemCSDesktopApp
         private string _publicKey;
         private bool _disabled = false;
         private bool _isGroup = false;
+        private EventHandler conversationTapPage_ControlRemove;
 
         public string PublicKey { get => _publicKey; set => _publicKey = value; }
         public string UID { get => _uid; set => _uid = value; }
@@ -34,6 +35,7 @@ namespace MessageSystemCSDesktopApp
             this.main = main;
             _publicKey = publicKey;
             _uid = uid;
+            _isGroup = false;
 
             InitializeComponent();
 
@@ -43,6 +45,14 @@ namespace MessageSystemCSDesktopApp
             SetDefaultHTML();
 
             wb_receive_message.Navigating += wb_receive_message_Navigating;
+        }
+
+        public ConversationTabPage(frm_main main, string gid) : this(main, "", "")
+        {
+            _gid = gid;
+            _isGroup = true;
+            this.Name = gid;
+            this.Text = gid;
         }
 
         private void conversationTapPage_GotFocus(object sender, EventArgs e)

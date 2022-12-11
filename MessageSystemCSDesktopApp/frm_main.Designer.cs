@@ -224,6 +224,7 @@ namespace MessageSystemCSDesktopApp
             this.lb_groups.Name = "lb_groups";
             this.lb_groups.Size = new System.Drawing.Size(198, 95);
             this.lb_groups.TabIndex = 21;
+            this.lb_groups.DoubleClick += new System.EventHandler(this.lb_groups_DoubleCLick);
             // 
             // tb_gid
             // 

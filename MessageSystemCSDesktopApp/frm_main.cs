@@ -125,8 +125,27 @@ namespace MessageSystemCSDesktopApp
 
         private void DataManagerForIncommingServerPackets(Packet packet)
         {
+            string[] data;
             switch (packet.type)
             {
+                case Packet.PacketType.ClientOutedGroup:
+                    data = packet.singleStringData.Split(';');
+                    if (this.uid == data[1])
+                    {
+                        Log("You outed group " + data[0] + ".");
+                    }
+                    else
+                    {
+                        Log(data[1] + " outed group " + data[0] + ".");
+                    }
+                    break;
+                case Packet.PacketType.JoinGroupSuccess:
+                    Log("Join group success.");
+                    break;
+                case Packet.PacketType.NewClientJoinedGroup:
+                    data = packet.singleStringData.Split(';');
+                    Log("New client " + data[1] + " joined your group " + data[0] + '.');
+                    break;
                 case Packet.PacketType.NewGroupCreated:
                     Log("New group was created.");
                     GetGroupList();
@@ -184,8 +203,8 @@ namespace MessageSystemCSDesktopApp
                     InvokeGUIThread(() => {
                         foreach (object clientdata in packet.data)
                         {
-                            string[] data = ((string) clientdata).Split(';');
-                            lb_clients.Items.Add(new LocalClientData(data[0], data[1]));
+                            string[] data1 = ((string) clientdata).Split(';');
+                            lb_clients.Items.Add(new LocalClientData(data1[0], data1[1]));
                         }
                     });
                     break;
@@ -193,16 +212,16 @@ namespace MessageSystemCSDesktopApp
                     Log("New Client connected.");
 
                     InvokeGUIThread(() => {                                                
-                        string[] data = (packet.singleStringData).Split(';');
-                        lb_clients.Items.Add(new LocalClientData(data[0], data[1]));                        
+                        string[] data2 = (packet.singleStringData).Split(';');
+                        lb_clients.Items.Add(new LocalClientData(data2[0], data2[1]));                        
                     });
                     break;
                 case Packet.PacketType.ClientDisconnected:
                     InvokeGUIThread(() => {
 
-                        string[] data = (packet.singleStringData).Split(';');
-                        string packetDataUID = data[0];
-                        string packetDataPublicKey = data[1];
+                        string[] data3 = (packet.singleStringData).Split(';');
+                        string packetDataUID = data3[0];
+                        string packetDataPublicKey = data3[1];
 
                         foreach (ConversationTabPage conversation in tc_conversations.TabPages)
                         {
@@ -233,7 +252,7 @@ namespace MessageSystemCSDesktopApp
             }
         }
 
-        private void OnNewMessage(string senderUID, DateTime timeStamp, string message)
+        private void OnNewMessage(string senderUID, DateTime timeStamp, string message) // code here
         {            
             //wenn neue Message kommt und Fenster hat nicht den Focus oder ist minimiert dann blink
             if (!this.Focused || this.WindowState == FormWindowState.Minimized)
@@ -365,6 +384,34 @@ namespace MessageSystemCSDesktopApp
                 tc_conversations.SelectedTab = tc_conversations.TabPages[tc_conversations.TabPages.Count-1];
             }
         }
+        
+        private void lb_groups_DoubleCLick(object sender, EventArgs e)
+        {
+            if (lb_groups.SelectedItem != null)
+            {
+                var gid = lb_groups.SelectedItem.ToString();
+
+                foreach (ConversationTabPage conversation in tc_conversations.TabPages)
+                {
+                    if (conversation.GID == gid)
+                    {
+                        Log(">> Conversation already exists.");
+                        tc_conversations.SelectedTab = conversation;
+                        return;
+                    }
+
+
+                }
+
+                tc_conversations.TabPages.Add(new ConversationTabPage(this, gid));
+                tc_conversations.SelectedTab = tc_conversations.TabPages[tc_conversations.TabPages.Count - 1];
+
+                // Join Group
+                var packet = new Packet(Packet.PacketType.JoinGroup, this.uid, this.publicKey);
+                packet.singleStringData = gid;
+                SendDataToServer(packet);
+            }
+        }
 
         public void Log(string message)
         {
@@ -397,6 +444,13 @@ namespace MessageSystemCSDesktopApp
                 var imageRect = new Rectangle((tabRect.Right - closeImage.Width), tabRect.Top + (tabRect.Height - closeImage.Height) / 2, closeImage.Width, closeImage.Height);
                 if (imageRect.Contains(e.Location))
                 {
+                    var tab = (ConversationTabPage)tc_conversations.TabPages[i];
+                    if (tab.IsGroup)
+                    {
+                        Log("You was out group " + tab.GID);
+                        SendDataToServer(new Packet(Packet.PacketType.OutGroup, tab.GID));
+
+                    }
                     tc_conversations.TabPages.RemoveAt(i);
                     break;
                 }

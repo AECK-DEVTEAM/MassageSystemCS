@@ -93,6 +93,18 @@ namespace MessageSystemCSServer
                 ClientData disconnectedClient = GetClientFromList(client);
                 Console.WriteLine("Client disconnected with UID: " + GetClientFromList(client).UID);
                 clients.Remove(disconnectedClient);
+                foreach (var g in groups)
+                {
+                    bool hasClient = g.clientsJoined.Remove(disconnectedClient);
+                    if (hasClient)
+                    {
+                        foreach (var c in g.clientsJoined)
+                        {
+                            c.SendDataPacketToClient(new Packet(Packet.PacketType.ClientOutedGroup, g.GID + ";" + disconnectedClient.UID + ";" + disconnectedClient.PublicKey));
+                        }
+                        Console.WriteLine("Group members are notified that " + disconnectedClient.UID + " has out group");
+                    }
+                }
                 Console.WriteLine("Client removed from list.\n");
 
                 //Notify other Clients that client has disconnected.
@@ -109,8 +121,47 @@ namespace MessageSystemCSServer
         private static void DataManagerForIncommingClientData(Packet p, TcpClient clientSocket)
         {
             ClientData client;
+            GroupData group;
             switch (p.type)
             {
+                case Packet.PacketType.OutGroup:
+                    client = GetClientFromList(clientSocket);
+                    Console.WriteLine("Client " + client.UID + " out group " + p.singleStringData + ".");
+                    group = groups.Find(g => g.GID.ToLower() == p.singleStringData.ToLower());
+                    if (group != null)
+                    {
+                        if (group.clientsJoined.Remove(client))
+                        {
+                            client.SendDataPacketToClient(new Packet(Packet.PacketType.ClientOutedGroup, group.GID + ";" + client.UID + ";" + client.PublicKey));
+                            Console.WriteLine("Group members [" + group.ToString() + "]");
+
+                            //Notify group members that client out Group
+                            foreach(var c in group.clientsJoined)
+                            {
+                                c.SendDataPacketToClient(new Packet(Packet.PacketType.ClientOutedGroup, group.GID + ";" + client.UID + ";" + client.PublicKey));
+                            }
+                        }
+                    }
+                     break;
+                case Packet.PacketType.JoinGroup:
+                    client = GetClientFromList(clientSocket);
+                    Console.WriteLine("Client " + client.UID + "join group " + p.singleStringData + ".");
+                    group = groups.Find(g => g.GID.ToLower() == p.singleStringData.ToLower());
+                    if (group != null)
+                    {
+                        group.clientsJoined.Add(client);
+                        //Notify group members that new client joined Group
+                        client.SendDataPacketToClient(new Packet(Packet.PacketType.JoinGroupSuccess));
+                        foreach (var c in group.clientsJoined)
+                        {
+                            if (c.UID.ToLower() != client.UID.ToLower())
+                            {
+                                c.SendDataPacketToClient(new Packet(Packet.PacketType.NewClientJoinedGroup, group.GID + ';' + client.UID + ';' + client.PublicKey));
+                            }
+                        }
+                        Console.WriteLine("Group members ["+group.ToString()+ "]");
+                    }
+                    break;
                 case Packet.PacketType.GetGroupList:
                     client = GetClientFromList(clientSocket);
                     Console.WriteLine("Client " + client.UID + " wants Group List. Generating...");
@@ -137,7 +188,7 @@ namespace MessageSystemCSServer
                     }
                     if (!gidExist)
                     {
-                        var group = new GroupData(p.singleStringData);
+                        group = new GroupData(p.singleStringData);
                         group.Save();
                         client.SendDataPacketToClient(new Packet(Packet.PacketType.CreateGroupSuccess));
 
