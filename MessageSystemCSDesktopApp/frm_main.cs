@@ -249,10 +249,16 @@ namespace MessageSystemCSDesktopApp
                     });
                     
                     break;
+                case Packet.PacketType.MessageGroup:
+                    Log("Incomming Message from " + packet.uid);
+                    InvokeGUIThread(() => {
+                        OnNewMessage(packet.uid, packet.messageTimeStamp, message: packet.singleStringData, gid: packet.destinationUID);
+                    });
+                    break;
             }
         }
 
-        private void OnNewMessage(string senderUID, DateTime timeStamp, string message) // code here
+        private void OnNewMessage(string senderUID, DateTime timeStamp, string message, string gid = null) // code here
         {            
             //wenn neue Message kommt und Fenster hat nicht den Focus oder ist minimiert dann blink
             if (!this.Focused || this.WindowState == FormWindowState.Minimized)
@@ -260,11 +266,21 @@ namespace MessageSystemCSDesktopApp
                 FlashWindow.Start(this);               
             }
 
-            ConversationTabPage userTab = TabExistsForUID(senderUID);
+            ConversationTabPage tab = null;
 
-            if (userTab != null) //Tab exists
+            if (gid == null)
             {
-                userTab.NewMessageFromOther(senderUID, timeStamp, message);
+                tab = TabExistsForUID(senderUID);
+            }
+            else
+            {
+                tab = TabExistsForGID(gid);
+                message = senderUID + ": " + message;
+            }
+
+            if (tab != null) //Tab exists
+            {
+                tab.NewMessageFromOther(senderUID, timeStamp, message);
 
 
                 //if (TabIsActiveForUID(senderUID) == null) //Also nicht aktiv
@@ -274,7 +290,8 @@ namespace MessageSystemCSDesktopApp
             }
             else
             {
-                tc_conversations.TabPages.Add(new ConversationTabPage(this, senderUID, GetPublicKeyForUID(senderUID)));
+                if (gid == null) tc_conversations.TabPages.Add(new ConversationTabPage(this, senderUID, GetPublicKeyForUID(senderUID)));
+                else tc_conversations.TabPages.Add(new ConversationTabPage(this, gid));
                 ConversationTabPage lastTP = (ConversationTabPage) tc_conversations.TabPages[tc_conversations.TabPages.Count - 1];
                 Application.DoEvents();
                 OnNewMessage(senderUID, timeStamp, message);                
@@ -418,9 +435,16 @@ namespace MessageSystemCSDesktopApp
             InvokeGUIThread(() => { tb_log.Text += ">> " + message + "\n"; tb_log.ScrollToCaret(); });
         }       
         
-        public void SendMessage(string destinationID, byte[] encrypedMessage, bool isGroup = false)
+        public void SendMessage(string destinationID, byte[] encrypedMessage)
         {
-            SendDataToServer(new Packet(isGroup ? Packet.PacketType.MessageGroup : Packet.PacketType.Message, DateTime.Now, uid, destinationID, encrypedMessage));
+            SendDataToServer(new Packet(Packet.PacketType.Message, DateTime.Now, uid, destinationID, encrypedMessage));
+        }
+
+        public void SendGroupMessage(string gid, string publicMessage)
+        {
+            var packet = new Packet(Packet.PacketType.MessageGroup, DateTime.Now, uid, gid, null);
+            packet.singleStringData = publicMessage;
+            SendDataToServer(packet);
         }
 
         private void tc_conversations_DrawItem(object sender, DrawItemEventArgs e)
@@ -461,7 +485,20 @@ namespace MessageSystemCSDesktopApp
         {
             foreach (ConversationTabPage conversation in tc_conversations.TabPages)
             {
-                if(conversation.UID == uid)
+                if(!conversation.IsGroup && conversation.UID == uid)
+                {
+                    return conversation;
+                }
+            }
+
+            return null;
+        }
+
+        private ConversationTabPage TabExistsForGID(string gid)
+        {
+            foreach (ConversationTabPage conversation in tc_conversations.TabPages)
+            {
+                if (conversation.IsGroup && conversation.GID == gid)
                 {
                     return conversation;
                 }

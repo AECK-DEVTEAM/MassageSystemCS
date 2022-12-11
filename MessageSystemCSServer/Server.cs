@@ -165,7 +165,7 @@ namespace MessageSystemCSServer
                 case Packet.PacketType.GetGroupList:
                     client = GetClientFromList(clientSocket);
                     Console.WriteLine("Client " + client.UID + " wants Group List. Generating...");
-                    groups = GroupData.LoadListGroup();
+                    Server.LoadGroupsDataToServer();
                     List<object> gdataList = new List<object>();
                     foreach (GroupData g in groups)
                     {
@@ -176,7 +176,7 @@ namespace MessageSystemCSServer
                 case Packet.PacketType.CreateGroup:
                     Console.WriteLine("Client wants to create group with GID: " + p.singleStringData);
                     client = GetClientFromList(clientSocket);
-                    groups = GroupData.LoadListGroup();
+                    Server.LoadGroupsDataToServer();
                     bool gidExist = false;
                     foreach(var g in groups)
                     {
@@ -274,7 +274,35 @@ namespace MessageSystemCSServer
                         }
                     }
                     break;
+                case Packet.PacketType.MessageGroup:
+                    Console.WriteLine("Incomming Group Message from " + p.uid + " at " + p.messageTimeStamp.ToString("HH:mm:ss") + " to group " + p.destinationUID);
+                    client = GetClientFromList(clientSocket);
+                    group = groups.Find(g => g.GID.ToLower() == p.destinationUID.ToLower());
+                    foreach(var c in group.clientsJoined)
+                    {
+                        if (client.UID != c.UID)
+                        {
+                            var p2 = new Packet(Packet.PacketType.MessageGroup, p.messageTimeStamp, p.uid, p.destinationUID, p.messageData);
+                            p2.singleStringData = p.singleStringData;
+                            c.SendDataPacketToClient(p2);
+                        }
+                    }
+                    break;
             }
+        }
+
+        private static void LoadGroupsDataToServer()
+        {
+            var data = GroupData.LoadListGroup();
+            foreach (var group in Server.groups)
+            {
+                var x = data.Find(g => g.GID == group.GID);
+                if (x != null)
+                {
+                    x.clientsJoined = group.clientsJoined;
+                }
+            }
+            Server.groups = data;
         }
 
         private static UserData GetUserFromList(string uid)

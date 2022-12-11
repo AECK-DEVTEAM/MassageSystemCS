@@ -81,7 +81,16 @@ namespace MessageSystemCSDesktopApp
             if (!String.IsNullOrWhiteSpace(tb_send_message.Text) || !String.IsNullOrEmpty(tb_send_message.Text))
             {
                 main.Log(tb_send_message.Text);
-                main.SendMessage(this.UID, MessageSysDataManagementLib.KeyManagement.Encrypt(this.PublicKey, tb_send_message.Text.TrimEnd(Environment.NewLine.ToCharArray())), _isGroup);
+
+                if (!_isGroup)
+                {
+                    main.SendMessage(this.UID, MessageSysDataManagementLib.KeyManagement.Encrypt(this.PublicKey, tb_send_message.Text.TrimEnd(Environment.NewLine.ToCharArray())));
+                }
+                else
+                {
+                    main.SendGroupMessage(this.GID, tb_send_message.Text.TrimEnd(Environment.NewLine.ToCharArray()));
+                }
+
                 NewMessageFromMe(DateTime.Now, tb_send_message.Text.TrimEnd(Environment.NewLine.ToCharArray()));
                 tb_send_message.Clear();
             }
