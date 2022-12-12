@@ -57,6 +57,8 @@ namespace MessageSystemCSDesktopApp
             this.btn_send.TabIndex = 0;
             this.btn_send.Text = "Send";
             this.btn_send.UseVisualStyleBackColor = true;
+            this.btn_send.Click += btn_send_Click;
+            this.btn_send.GotFocus += conversationTapPage_GotFocus;
             // 
             // panelSend
             // 
@@ -69,6 +71,7 @@ namespace MessageSystemCSDesktopApp
             this.panelSend.Name = "panelSend";
             this.panelSend.Size = new System.Drawing.Size(397, 122);
             this.panelSend.TabIndex = 1;
+            this.panelSend.GotFocus += conversationTapPage_GotFocus;
             // 
             // btn_emoji
             // 
@@ -81,6 +84,7 @@ namespace MessageSystemCSDesktopApp
             this.btn_emoji.TabIndex = 4;
             this.btn_emoji.UseVisualStyleBackColor = false;
             this.btn_emoji.Click += new System.EventHandler(this.btn_emoji_Click);
+            this.btn_emoji.GotFocus += conversationTapPage_GotFocus;
             // 
             // btn_attach
             // 
@@ -92,6 +96,7 @@ namespace MessageSystemCSDesktopApp
             this.btn_attach.Size = new System.Drawing.Size(32, 32);
             this.btn_attach.TabIndex = 4;
             this.btn_attach.UseVisualStyleBackColor = false;
+            this.btn_attach.Click += new System.EventHandler(this.btn_attach_Click);
             // 
             // tb_send_message
             // 
@@ -102,6 +107,7 @@ namespace MessageSystemCSDesktopApp
             this.tb_send_message.TabIndex = 2;
             this.tb_send_message.Text = "";
             this.tb_send_message.KeyUp += new System.Windows.Forms.KeyEventHandler(this.tb_send_message_KeyUp);
+            this.tb_send_message.GotFocus += conversationTapPage_GotFocus;
             // 
             // wb_receive_message
             // 
@@ -110,6 +116,7 @@ namespace MessageSystemCSDesktopApp
             this.wb_receive_message.Name = "wb_receive_message";
             this.wb_receive_message.Size = new System.Drawing.Size(397, 421);
             this.wb_receive_message.TabIndex = 1;
+            this.wb_receive_message.GotFocus += conversationTapPage_GotFocus;
             // 
             // panelReceive
             // 
@@ -119,11 +126,13 @@ namespace MessageSystemCSDesktopApp
             this.panelReceive.Name = "panelReceive";
             this.panelReceive.Size = new System.Drawing.Size(397, 421);
             this.panelReceive.TabIndex = 3;
+            this.panelReceive.GotFocus += conversationTapPage_GotFocus;
             // 
             // ConversationTabPage
             // 
             this.Controls.Add(this.panelReceive);
             this.Controls.Add(this.panelSend);
+            this.Name = "ConversationTabPage";
             this.Size = new System.Drawing.Size(397, 543);
             this.panelSend.ResumeLayout(false);
             this.panelReceive.ResumeLayout(false);

@@ -84,9 +84,8 @@ namespace MessageSystemCSDesktopApp
                 main.Log(tb_send_message.Text);
 
                 if (!_isGroup)
-                {// mai lam tiep
-                    //main.SendMessage(this.UID, MessageSysDataManagementLib.KeyManagement.Encrypt(this.PublicKey, tb_send_message.Text.TrimEnd(Environment.NewLine.ToCharArray())));
-                    TestSendImgToServer();
+                {
+                    main.SendMessage(this.UID, MessageSysDataManagementLib.KeyManagement.Encrypt(this.PublicKey, tb_send_message.Text.TrimEnd(Environment.NewLine.ToCharArray())));
                 }
                 else
                 {
@@ -98,7 +97,7 @@ namespace MessageSystemCSDesktopApp
             }
         }
 
-        public void TestSendImgToServer()
+        public void SendImgToServer()
         {
             string src = "";
             OpenFileDialog ofd = new OpenFileDialog();
@@ -116,6 +115,8 @@ namespace MessageSystemCSDesktopApp
                     return;
                 }
             }
+
+            if (src == "") return;
 
             var img = Image.FromFile(src);
             var imgBytes = Packet.ObjectToByteArray(img);
@@ -287,6 +288,11 @@ namespace MessageSystemCSDesktopApp
                 emoji.Location = new Point(MousePosition.X, MousePosition.Y);
                 emoji.Show();
             }
+        }
+
+        private void btn_attach_Click(object sender, EventArgs e)
+        {
+            this.SendImgToServer();
         }
 
         private void wb_receive_message_Navigating(object sender, WebBrowserNavigatingEventArgs e)
