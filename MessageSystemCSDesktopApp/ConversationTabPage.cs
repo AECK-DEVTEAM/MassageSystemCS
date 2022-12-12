@@ -160,7 +160,7 @@ namespace MessageSystemCSDesktopApp
             }
         }
 
-        private void ShowSystemMessage(string message)
+        public void ShowSystemMessage(string message)
         {
             //tb_receive_message.Text += message + "\n";
             wb_receive_message.Document.GetElementById("chat-history").InnerHtml += "<div class='system-message'>" + message + "</div>";

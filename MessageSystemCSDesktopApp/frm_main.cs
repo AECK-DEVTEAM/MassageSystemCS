@@ -137,6 +137,17 @@ namespace MessageSystemCSDesktopApp
                     else
                     {
                         Log(data[1] + " outed group " + data[0] + ".");
+                        InvokeGUIThread(() =>
+                        {
+                            foreach (ConversationTabPage conversation in tc_conversations.TabPages)
+                            {
+                                if (conversation.IsGroup && conversation.GID == data[0])
+                                {
+                                    //tc_conversations.TabPages.Remove(conversation);
+                                    conversation.ShowSystemMessage(data[1] + " outed.");
+                                }
+                            }
+                        });
                     }
                     break;
                 case Packet.PacketType.JoinGroupSuccess:
@@ -145,6 +156,16 @@ namespace MessageSystemCSDesktopApp
                 case Packet.PacketType.NewClientJoinedGroup:
                     data = packet.singleStringData.Split(';');
                     Log("New client " + data[1] + " joined your group " + data[0] + '.');
+                    InvokeGUIThread(() =>
+                    {
+                        foreach (ConversationTabPage conversation in tc_conversations.TabPages)
+                        {
+                            if (conversation.IsGroup && conversation.GID == data[0])
+                            {
+                                conversation.ShowSystemMessage(data[1] + " joined.");
+                            }
+                        }
+                    });
                     break;
                 case Packet.PacketType.NewGroupCreated:
                     Log("New group was created.");
