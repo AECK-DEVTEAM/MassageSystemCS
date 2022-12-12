@@ -67,5 +67,14 @@ namespace MessageSysDataManagementLib
 
             return plainText;
         }
+        public static Byte[] DecryptImage(string privateKey, byte[] encryptedMessage)
+        {
+            CspParameters cspParams = new CspParameters { ProviderType = 1 };
+            RSACryptoServiceProvider rsaProvider = new RSACryptoServiceProvider(cspParams);
+
+            rsaProvider.ImportCspBlob(Convert.FromBase64String(privateKey));
+            byte[] plainBytes = rsaProvider.Decrypt(encryptedMessage, false);
+            return plainBytes;
+        }
     }
 }

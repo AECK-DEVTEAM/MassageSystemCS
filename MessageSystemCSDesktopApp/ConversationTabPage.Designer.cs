@@ -97,6 +97,7 @@ namespace MessageSystemCSDesktopApp
             this.btn_attach.TabIndex = 4;
             this.btn_attach.UseVisualStyleBackColor = false;
             this.btn_attach.Click += new System.EventHandler(this.btn_attach_Click);
+            this.btn_attach.GotFocus += conversationTapPage_GotFocus;
             // 
             // tb_send_message
             // 

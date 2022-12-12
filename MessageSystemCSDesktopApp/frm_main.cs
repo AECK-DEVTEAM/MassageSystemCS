@@ -255,8 +255,7 @@ namespace MessageSystemCSDesktopApp
                             var messType = packet.messType.Split(':');
                             if (messType[0] == "file" && messType[1] == "img")
                             {
-                                Image img = (Image) Packet.ByteArrayToObject(packet.messageData);
-                                Log("This message is a image file " + img.Size);
+                                OnNewImageMessage(packet.uid, packet.messageTimeStamp, KeyManagement.Decrypt(privateKey, packet.messageData));
                             }
                         }
                     });
@@ -280,6 +279,12 @@ namespace MessageSystemCSDesktopApp
                     });
                     break;
             }
+        }
+        private byte[] turnImageToByteArray(System.Drawing.Image img)
+        {
+            MemoryStream ms = new MemoryStream();
+            img.Save(ms, System.Drawing.Imaging.ImageFormat.Bmp);
+            return ms.ToArray();
         }
 
         private void OnNewMessage(string senderUID, DateTime timeStamp, string message, string gid = null) // code here
@@ -321,6 +326,51 @@ namespace MessageSystemCSDesktopApp
                 OnNewMessage(senderUID, timeStamp, message);                
                 //Blink
             }           
+        }
+        private void OnNewImageMessage(string senderUID, DateTime timeStamp, string message, string gid = null) // code here
+        {
+            Byte[] data = Encoding.ASCII.GetBytes(message);
+            Image img = (Image)Packet.ByteArrayToObject(data);
+            byte[] imgBytes = turnImageToByteArray(img);
+            Log("This message is a image file " + img.Size);
+            string imgString = Convert.ToBase64String(imgBytes);
+            //wenn neue Message kommt und Fenster hat nicht den Focus oder ist minimiert dann blink
+            if (!this.Focused || this.WindowState == FormWindowState.Minimized)
+            {
+                FlashWindow.Start(this);
+            }
+
+            ConversationTabPage tab = null;
+
+            if (gid == null)
+            {
+                tab = TabExistsForUID(senderUID);
+            }
+            else
+            {
+                tab = TabExistsForGID(gid);
+                imgString = senderUID + ": " + imgString;
+            }
+
+            if (tab != null) //Tab exists
+            {
+                tab.NewImageMessageFromOther(senderUID, timeStamp, imgString);
+
+
+                //if (TabIsActiveForUID(senderUID) == null) //Also nicht aktiv
+                //{                   
+                //    //Blink
+                //}                
+            }
+            else
+            {
+                if (gid == null) tc_conversations.TabPages.Add(new ConversationTabPage(this, senderUID, GetPublicKeyForUID(senderUID)));
+                else tc_conversations.TabPages.Add(new ConversationTabPage(this, gid));
+                ConversationTabPage lastTP = (ConversationTabPage)tc_conversations.TabPages[tc_conversations.TabPages.Count - 1];
+                Application.DoEvents();
+                OnNewImageMessage(senderUID, timeStamp, imgString);
+                //Blink
+            }
         }
 
         private void ConnectToServer(string ip, int port)
