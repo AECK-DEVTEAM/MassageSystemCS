@@ -254,9 +254,7 @@ namespace MessageSystemCSDesktopApp
                         {
                             var messType = packet.messType.Split(':');
                             if (messType[0] == "file" && messType[1] == "img")
-                            {
-                            
-                             
+                            { 
                                 OnNewImageMessage(packet.uid, packet.messageTimeStamp, packet.messageData);
                             }
                         }
@@ -274,8 +272,7 @@ namespace MessageSystemCSDesktopApp
                             var messType = packet.messType.Split(':');
                             if (messType[0] == "file" && messType[1] == "img")
                             {
-                                Image img = (Image)Packet.ByteArrayToObject(packet.messageData);
-                                Log("This group message is a image file " + img.Size);
+                                OnNewImageMessage(packet.uid, packet.messageTimeStamp, packet.messageData, gid: packet.destinationUID);
                             }
                         }
                     });
@@ -350,13 +347,12 @@ namespace MessageSystemCSDesktopApp
             else
             {
                 tab = TabExistsForGID(gid);
-                imgString = senderUID + ": " + imgString;
             }
 
             if (tab != null) //Tab exists
             {
                 tab.NewImageMessageFromOther(senderUID, timeStamp, imgString);
-
+               
 
                 //if (TabIsActiveForUID(senderUID) == null) //Also nicht aktiv
                 //{                   

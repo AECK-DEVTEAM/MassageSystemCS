@@ -97,6 +97,13 @@ namespace MessageSystemCSDesktopApp
             }
         }
 
+        private byte[] turnImageToByteArray(System.Drawing.Image img)
+        {
+            MemoryStream ms = new MemoryStream();
+            img.Save(ms, System.Drawing.Imaging.ImageFormat.Bmp);
+            return ms.ToArray();
+        }
+
         public void SendImgToServer()
         {
             string src = "";
@@ -120,7 +127,9 @@ namespace MessageSystemCSDesktopApp
 
             var img = Image.FromFile(src);
             var imgBytes = Packet.ObjectToByteArray(img);
-
+            byte[] imgByteArray = turnImageToByteArray(img);
+            string imgString = Convert.ToBase64String(imgByteArray);
+            NewImageMessageFromMe(DateTime.Now, imgString);
             if (!_isGroup) main.SendImg(this.UID, imgBytes);
             else main.SendGroupImg(this.GID, imgBytes);
         }
@@ -177,8 +186,14 @@ namespace MessageSystemCSDesktopApp
         public void NewImageMessageFromOther(string otherUID, DateTime messageTimeStamp, string message)
         {
             //tb_receive_message.Text += messageTimeStamp.ToString("HH:mm:ss") + " - " + otherUID + ": " + message + "\n";
-            
-            wb_receive_message.Document.GetElementById("chat-history").InnerHtml += "<div class='other-message'><img src=\"data:image/Bmp;base64," + message + "\"width=\"200\" height=\"150\"> <div class='message-data-other text-right text-muted'><span class='glyphicon glyphicon-time'>" + messageTimeStamp.ToString("HH:mm:ss") + "</span></div></div>";
+            wb_receive_message.Document.GetElementById("chat-history").InnerHtml += "<div class='other-message'><img src=\"data:image/Bmp;base64," + message + "\"width=\"200\" height=\"150\"> <div class='message-data-other text-right text-muted'><span class='glyphicon glyphicon-time'>" + messageTimeStamp.ToString("HH:mm:ss") + "</span></div>"+otherUID+"</div>";
+            Application.DoEvents();
+            wb_receive_message.Document.Window.ScrollTo(0, wb_receive_message.Document.Body.ScrollRectangle.Height);
+        }
+        public void NewImageMessageFromMe(DateTime messageTimeStamp, string message)
+        {
+            //tb_receive_message.Text += messageTimeStamp.ToString("HH:mm:ss") + " - Du: " + message + "\n"; 
+            wb_receive_message.Document.GetElementById("chat-history").InnerHtml += "<div class='my-message'><img src=\"data:image/Bmp;base64," + message + "\"width=\"200\" height=\"150\"> <div class='message-data-other text-right text-muted'><span class='glyphicon glyphicon-time'>" + messageTimeStamp.ToString("HH:mm:ss") + "</span></div></div>";
             Application.DoEvents();
             wb_receive_message.Document.Window.ScrollTo(0, wb_receive_message.Document.Body.ScrollRectangle.Height);
         }
@@ -300,6 +315,7 @@ namespace MessageSystemCSDesktopApp
 
         private void btn_attach_Click(object sender, EventArgs e)
         {
+          
             this.SendImgToServer();
         }
 
