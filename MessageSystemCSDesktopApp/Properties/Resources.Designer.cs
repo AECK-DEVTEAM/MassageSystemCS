@@ -63,6 +63,16 @@ namespace MessageSystemCSDesktopApp.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap attach_paperclip_symbol {
+            get {
+                object obj = ResourceManager.GetObject("attach-paperclip-symbol", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap emoticon {
             get {
                 object obj = ResourceManager.GetObject("emoticon", resourceCulture);

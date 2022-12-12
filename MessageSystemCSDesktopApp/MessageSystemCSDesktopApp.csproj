@@ -111,6 +111,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="message.ico" />
+    <None Include="Resources\attach-paperclip-symbol.png" />
     <Content Include="Resources\emoticon.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
