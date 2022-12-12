@@ -17,6 +17,7 @@ namespace MessageSysDataManagementLib
         public string destinationUID;
         public string publicKey;
         public string singleStringData;
+        public string messType;
         public byte[] messageData;
         public DateTime messageTimeStamp;
         public List<object> data;
@@ -76,6 +77,7 @@ namespace MessageSysDataManagementLib
             messageData = p.messageData;
             data = p.data;
             singleStringData = p.singleStringData;
+            messType = p.messType;
             messageTimeStamp = p.messageTimeStamp;
         }
 
@@ -113,6 +115,31 @@ namespace MessageSysDataManagementLib
             ms.Close();
 
             return serializedObject;
+        }
+
+        // Convert an object to a byte array
+        public static byte[] ObjectToByteArray(Object obj)
+        {
+            if (obj == null)
+                return null;
+
+            BinaryFormatter bf = new BinaryFormatter();
+            MemoryStream ms = new MemoryStream();
+            bf.Serialize(ms, obj);
+
+            return ms.ToArray();
+        }
+
+        // Convert a byte array to an Object
+        public static Object ByteArrayToObject(byte[] arrBytes)
+        {
+            MemoryStream memStream = new MemoryStream();
+            BinaryFormatter binForm = new BinaryFormatter();
+            memStream.Write(arrBytes, 0, arrBytes.Length);
+            memStream.Seek(0, SeekOrigin.Begin);
+            Object obj = (Object)binForm.Deserialize(memStream);
+
+            return obj;
         }
 
         public enum PacketType

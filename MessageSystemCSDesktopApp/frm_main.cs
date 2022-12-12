@@ -244,15 +244,39 @@ namespace MessageSystemCSDesktopApp
                     break;
                 case Packet.PacketType.Message:
                     Log("Incomming Message from " + packet.uid);
-                    InvokeGUIThread(() => {
-                        OnNewMessage(packet.uid, packet.messageTimeStamp, KeyManagement.Decrypt(privateKey, packet.messageData));
+                    InvokeGUIThread(() =>
+                    {
+                        if (String.IsNullOrEmpty(packet.messType))
+                        {
+                            OnNewMessage(packet.uid, packet.messageTimeStamp, KeyManagement.Decrypt(privateKey, packet.messageData));
+                        }
+                        else
+                        {
+                            var messType = packet.messType.Split(':');
+                            if (messType[0] == "file" && messType[1] == "img")
+                            {
+                                Image img = (Image) Packet.ByteArrayToObject(packet.messageData);
+                                Log("This message is a image file " + img.Size);
+                            }
+                        }
                     });
-                    
                     break;
                 case Packet.PacketType.MessageGroup:
-                    Log("Incomming Message from " + packet.uid);
+                    Log("Incomming Group Message from " + packet.uid);
                     InvokeGUIThread(() => {
-                        OnNewMessage(packet.uid, packet.messageTimeStamp, message: packet.singleStringData, gid: packet.destinationUID);
+                        if (String.IsNullOrEmpty(packet.messType))
+                        {
+                            OnNewMessage(packet.uid, packet.messageTimeStamp, message: packet.singleStringData, gid: packet.destinationUID);
+                        }
+                        else
+                        {
+                            var messType = packet.messType.Split(':');
+                            if (messType[0] == "file" && messType[1] == "img")
+                            {
+                                Image img = (Image)Packet.ByteArrayToObject(packet.messageData);
+                                Log("This group message is a image file " + img.Size);
+                            }
+                        }
                     });
                     break;
             }
@@ -444,6 +468,21 @@ namespace MessageSystemCSDesktopApp
         {
             var packet = new Packet(Packet.PacketType.MessageGroup, DateTime.Now, uid, gid, null);
             packet.singleStringData = publicMessage;
+            SendDataToServer(packet);
+        }
+
+        public void SendImg(string destinationID, byte[] imgData)
+        {
+            var packet = new Packet(Packet.PacketType.Message, DateTime.Now, uid, destinationID, imgData);
+            packet.messType = "file:img";
+            SendDataToServer(packet);
+        }
+
+        public void SendGroupImg(string gid, byte[] imgData)
+        {
+            var packet = new Packet(Packet.PacketType.MessageGroup, DateTime.Now, uid, gid, null);
+            packet.messageData = imgData;
+            packet.messType = "file:img";
             SendDataToServer(packet);
         }
 

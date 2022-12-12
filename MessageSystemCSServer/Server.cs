@@ -269,7 +269,10 @@ namespace MessageSystemCSServer
                     {
                         if(c.UID == p.destinationUID)
                         {
-                            c.SendDataPacketToClient(new Packet(Packet.PacketType.Message, p.messageTimeStamp, p.uid, p.destinationUID, p.messageData));
+                            c.SendDataPacketToClient(new Packet(Packet.PacketType.Message, p.messageTimeStamp, p.uid, p.destinationUID, p.messageData)
+                            {
+                                messType = p.messType
+                            });
                             Console.WriteLine("Message send to " + c.UID);
                         }
                     }
@@ -284,6 +287,7 @@ namespace MessageSystemCSServer
                         {
                             var p2 = new Packet(Packet.PacketType.MessageGroup, p.messageTimeStamp, p.uid, p.destinationUID, p.messageData);
                             p2.singleStringData = p.singleStringData;
+                            p2.messType = p.messType;
                             c.SendDataPacketToClient(p2);
                         }
                     }

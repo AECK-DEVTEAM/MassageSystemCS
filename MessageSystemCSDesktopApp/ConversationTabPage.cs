@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using MessageSysDataManagementLib;
 using System.Text.RegularExpressions;
+using System.IO;
 
 namespace MessageSystemCSDesktopApp
 {
@@ -83,8 +84,9 @@ namespace MessageSystemCSDesktopApp
                 main.Log(tb_send_message.Text);
 
                 if (!_isGroup)
-                {
-                    main.SendMessage(this.UID, MessageSysDataManagementLib.KeyManagement.Encrypt(this.PublicKey, tb_send_message.Text.TrimEnd(Environment.NewLine.ToCharArray())));
+                {// mai lam tiep
+                    //main.SendMessage(this.UID, MessageSysDataManagementLib.KeyManagement.Encrypt(this.PublicKey, tb_send_message.Text.TrimEnd(Environment.NewLine.ToCharArray())));
+                    TestSendImgToServer();
                 }
                 else
                 {
@@ -94,6 +96,32 @@ namespace MessageSystemCSDesktopApp
                 NewMessageFromMe(DateTime.Now, tb_send_message.Text.TrimEnd(Environment.NewLine.ToCharArray()));
                 tb_send_message.Clear();
             }
+        }
+
+        public void TestSendImgToServer()
+        {
+            string src = "";
+            OpenFileDialog ofd = new OpenFileDialog();
+            ofd.Filter = "Images |*.bmp;*.jpg;*.png;*.gif;*.ico";
+            ofd.Multiselect = false;
+            ofd.FileName = "";
+            DialogResult result = ofd.ShowDialog();
+            if (result == DialogResult.OK)
+            {
+                src = ofd.FileName;
+                FileInfo fi = new FileInfo(ofd.FileName);
+                if (fi.Length > 1024 * 5000)
+                {
+                    main.Log("Size of image must less than 5MB.");
+                    return;
+                }
+            }
+
+            var img = Image.FromFile(src);
+            var imgBytes = Packet.ObjectToByteArray(img);
+
+            if (!_isGroup) main.SendImg(this.UID, imgBytes);
+            else main.SendGroupImg(this.GID, imgBytes);
         }
 
         public void DisableAll(string message)
