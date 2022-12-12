@@ -255,7 +255,9 @@ namespace MessageSystemCSDesktopApp
                             var messType = packet.messType.Split(':');
                             if (messType[0] == "file" && messType[1] == "img")
                             {
-                                OnNewImageMessage(packet.uid, packet.messageTimeStamp, KeyManagement.Decrypt(privateKey, packet.messageData));
+                            
+                             
+                                OnNewImageMessage(packet.uid, packet.messageTimeStamp, packet.messageData);
                             }
                         }
                     });
@@ -327,10 +329,9 @@ namespace MessageSystemCSDesktopApp
                 //Blink
             }           
         }
-        private void OnNewImageMessage(string senderUID, DateTime timeStamp, string message, string gid = null) // code here
+        private void OnNewImageMessage(string senderUID, DateTime timeStamp, Byte[] message, string gid = null) // code here
         {
-            Byte[] data = Encoding.ASCII.GetBytes(message);
-            Image img = (Image)Packet.ByteArrayToObject(data);
+            Image img = (Image)Packet.ByteArrayToObject(message);
             byte[] imgBytes = turnImageToByteArray(img);
             Log("This message is a image file " + img.Size);
             string imgString = Convert.ToBase64String(imgBytes);
@@ -368,7 +369,7 @@ namespace MessageSystemCSDesktopApp
                 else tc_conversations.TabPages.Add(new ConversationTabPage(this, gid));
                 ConversationTabPage lastTP = (ConversationTabPage)tc_conversations.TabPages[tc_conversations.TabPages.Count - 1];
                 Application.DoEvents();
-                OnNewImageMessage(senderUID, timeStamp, imgString);
+                OnNewImageMessage(senderUID, timeStamp, message);
                 //Blink
             }
         }

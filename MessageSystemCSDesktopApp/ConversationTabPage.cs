@@ -177,8 +177,8 @@ namespace MessageSystemCSDesktopApp
         public void NewImageMessageFromOther(string otherUID, DateTime messageTimeStamp, string message)
         {
             //tb_receive_message.Text += messageTimeStamp.ToString("HH:mm:ss") + " - " + otherUID + ": " + message + "\n";
-            //<img src=\"data:image/Bmp;base64,"+message+"\">
-            wb_receive_message.Document.GetElementById("chat-history").InnerHtml += "<div class='other-message'>"+message+" <div class='message-data-other text-right text-muted'><span class='glyphicon glyphicon-time'>" + messageTimeStamp.ToString("HH:mm:ss") + "</span></div></div>";
+            
+            wb_receive_message.Document.GetElementById("chat-history").InnerHtml += "<div class='other-message'><img src=\"data:image/Bmp;base64," + message + "\"width=\"200\" height=\"150\"> <div class='message-data-other text-right text-muted'><span class='glyphicon glyphicon-time'>" + messageTimeStamp.ToString("HH:mm:ss") + "</span></div></div>";
             Application.DoEvents();
             wb_receive_message.Document.Window.ScrollTo(0, wb_receive_message.Document.Body.ScrollRectangle.Height);
         }
